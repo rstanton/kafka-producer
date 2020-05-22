@@ -29,10 +29,13 @@ public class App {
 	public App() {
 		bsServers = System.getenv("KAFKA_BOOTSTRAP_SERVERS");
 		
+		logger.info("Connecting to Kafka Servers via "+bsServers);
+		
 		if(bsServers==null) {
 			logger.log(Level.SEVERE, "KAFKA_BOOTSTRAP_SERVERS environment variable NOT set");
 		}
 	}
+	
     public void start() {
     	try {
     		logger.info("Starting");
