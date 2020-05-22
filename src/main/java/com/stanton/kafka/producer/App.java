@@ -5,6 +5,7 @@ package com.stanton.kafka.producer;
 
 import java.util.Properties;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.kafka.clients.producer.Callback;
@@ -23,13 +24,21 @@ import com.google.gson.Gson;
 public class App {
 	private final static Gson json = new Gson();
 	private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+	private String bsServers;
 	
+	public App() {
+		bsServers = System.getenv("KAFKA_BOOTSTRAP_SERVERS");
+		
+		if(bsServers==null) {
+			logger.log(Level.SEVERE, "KAFKA_BOOTSTRAP_SERVERS environment variable NOT set");
+		}
+	}
     public void start() {
     	try {
     		logger.info("Starting");
     		
 	    	 Properties props = new Properties();
-	    	 props.put("bootstrap.servers", "127.0.0.1:29092");
+	    	 props.put("bootstrap.servers", bsServers);
 	    	 props.put("acks", "all");
 	    	 props.put("batch.size","5");
 	    	 props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
