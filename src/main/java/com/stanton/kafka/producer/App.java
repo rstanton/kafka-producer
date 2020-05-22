@@ -33,6 +33,7 @@ public class App {
 		
 		if(bsServers==null) {
 			logger.log(Level.SEVERE, "KAFKA_BOOTSTRAP_SERVERS environment variable NOT set");
+			System.exit(-1);
 		}
 	}
 	
