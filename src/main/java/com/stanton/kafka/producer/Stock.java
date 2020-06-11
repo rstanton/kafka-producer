@@ -11,7 +11,6 @@ public class Stock {
 	}
 
 	
-	
 	public String getEAN() {
 		return EAN;
 	}

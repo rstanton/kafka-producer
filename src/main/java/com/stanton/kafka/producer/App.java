@@ -4,7 +4,6 @@
 package com.stanton.kafka.producer;
 
 import java.util.Properties;
-import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,7 +24,7 @@ public class App {
 	private final static Gson json = new Gson();
 	private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 	private String bsServers;
-	
+
 	public App() {
 		bsServers = System.getenv("KAFKA_BOOTSTRAP_SERVERS");
 		
@@ -33,6 +32,49 @@ public class App {
 		
 		if(bsServers==null) {
 			logger.log(Level.SEVERE, "KAFKA_BOOTSTRAP_SERVERS environment variable NOT set");
+			System.exit(-1);
+		}
+
+	}
+	
+	private void sendComplexKey() {
+		try{
+			Properties props = new Properties();
+	   	 	props.put("bootstrap.servers", bsServers);
+	   	 	props.put("acks", "all");
+	   	 	props.put("batch.size","5");
+	   	 	props.put("key.serializer", "com.stanton.kafka.producer.StockKeySerializer");
+	   	 	props.put("value.serializer", "org.apache.kafka.common.serialization.DoubleSerializer");
+	
+	   	 	Producer<StockKey, Double> producer = new KafkaProducer<>(props);	
+	   	 	
+	   	 	while(true) {
+	   	 		StockKey key = new StockKey();
+	   	 		key.setEAN("3663602942986");
+	   	 		key.setLocation("1000");;
+	   	 		key.setStore("1233");
+	   	 		
+				 ProducerRecord<StockKey, Double> r = new ProducerRecord<StockKey, Double>("storestock", key, 5.0);
+				 
+				 Callback cb = new Callback() {
+					 @Override
+					 public void onCompletion(RecordMetadata metadata, Exception e) {
+						 if(e!=null) {
+							 logger.warning(e.toString());
+						 }
+						 else {
+							 logger.info("Sent message with id "+metadata.offset());
+						 }
+						 
+					 }
+				 };
+				 producer.send(r, cb);
+				 
+				 Thread.sleep(10000);   	 		
+	 		}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
 			System.exit(-1);
 		}
 	}
@@ -94,6 +136,6 @@ public class App {
     }
 
     public static void main(String[] args) {
-        new App().start();
+        new App().sendComplexKey();
     }
 }
